@@ -129,6 +129,8 @@ namespace VIPA_PARSER.Devices.Verifone.Connection
                 }
                 else if (combinedResponseBytes[2] > (combinedResponseLength - headerProtoLen) && !isChainedCommand)  // command is not chained
                 {
+                    deviceLogHandler?.Invoke(Types.LogLevel.Info, 
+                        string.Format("VIPA-RRCBADD [{0}]: EXPECTED-LEN=0x{1:X2} - CALCULATED-LEN=0x{2:X2}", comPort, combinedResponseBytes[2], (combinedResponseLength - headerProtoLen)));
                     readErrorLevel = ReadErrorLevel.Invalid_CombinedBytes;
                     return true;
                 }

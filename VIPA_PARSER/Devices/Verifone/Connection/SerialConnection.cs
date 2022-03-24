@@ -14,6 +14,8 @@ namespace VIPA_PARSER.Devices.Verifone.Connection
         internal const bool LogSerialBytes = false;
 #endif
 
+        private readonly string comPort = "COM9";
+        private DeviceLogHandler DeviceLogHandler;
         private readonly IVIPASerialParser serialParser;
 
         internal VIPAImpl.ResponseTagsHandlerDelegate ResponseTagsHandler = null;
@@ -36,7 +38,8 @@ namespace VIPA_PARSER.Devices.Verifone.Connection
 
         public SerialConnection(DeviceLogHandler deviceLogHandler)
         {
-            serialParser = new VIPASerialParserImpl(deviceLogHandler, "COM1");
+            DeviceLogHandler = deviceLogHandler;
+            serialParser = new VIPASerialParserImpl(deviceLogHandler, comPort);
         }
 
         private void ReadExistingResponseBytes(byte[] buffer)
@@ -44,6 +47,7 @@ namespace VIPA_PARSER.Devices.Verifone.Connection
             if (buffer.Length > 0)
             {
                 int readLength = buffer.Length;
+                DeviceLogHandler?.Invoke(Types.LogLevel.Info, string.Format("VIPA-READER_ [{0}]: BUFFER LEN=0x{1:X4}", comPort, readLength));
                 serialParser.BytesRead(buffer, readLength);
                 serialParser.ReadAndExecute(ResponseTagsHandler, ResponseTaglessHandler, ResponseContactlessHandler, IsChainedMessageResponse);
                 serialParser.SanityCheck();

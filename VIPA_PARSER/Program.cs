@@ -48,12 +48,11 @@ namespace VIPA_PARSER
             // Is there a matching item?
             if (vipaPayload.Count() > index)
             {
-                string vipaCommand = vipaPayload.ElementAt(index).VIPACommand;
+                string vipaCommand = vipaPayload.ElementAt(index).VIPACommand.Replace("-", string.Empty);
                 string vipaResponse = vipaPayload.ElementAt(index).VIPAResponse.Replace("-", string.Empty);
 
                 try
                 {
-                    //1234567890|1234567890|12345
                     Console.WriteLine($"===== [ VIPA RESPONSE PARSER ] =====");
                     DeviceInformation deviceInformation = new DeviceInformation();
                     VerifoneDevice device = new VerifoneDevice(deviceLogHandler, deviceInformation);

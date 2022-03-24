@@ -265,7 +265,7 @@ namespace VIPA_PARSER.Devices.Verifone.VIPA
             VerifoneConnection.SetTagHandlers(ResponseTagsHandler, null, null);
             VerifoneConnection.SerialPort_DataReceived(ConversionHelper.HexToByteArray(vipaResponse));
 
-            deviceResponse = DeviceIdentifier.Task.Result;
+            //deviceResponse = DeviceIdentifier.Task.Result;
             ResponseTagsHandler -= GetDeviceInfoResponseHandler;
         }
         #endregion --- interface ---
