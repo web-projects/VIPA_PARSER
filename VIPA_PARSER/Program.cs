@@ -2,10 +2,8 @@
 using System;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using VIPA_PARSER.Devices.Common;
-using VIPA_PARSER.Devices.Common.Helpers;
-using VIPA_PARSER.Devices.Verifone.Connection;
+using VIPA_PARSER.Devices.Verifone;
 using VIPA_PARSER.Devices.Verifone.VIPA;
 using static VIPA_PARSER.Devices.Common.Types;
 
@@ -56,10 +54,15 @@ namespace VIPA_PARSER
                 try
                 {
                     //1234567890|1234567890|12345
-                    Console.WriteLine($"==== [ VIPA RESPONSE PARSER ] ====");
+                    Console.WriteLine($"===== [ VIPA RESPONSE PARSER ] =====");
                     DeviceInformation deviceInformation = new DeviceInformation();
-                    VIPAImpl vipa = new VIPAImpl(deviceLogHandler, deviceInformation);
-                    vipa.ProcessCommand(vipaResponse);
+                    VerifoneDevice device = new VerifoneDevice(deviceLogHandler, deviceInformation);
+                    device.ProcessCommand(vipaResponse);
+                    if (!string.IsNullOrEmpty(deviceInformation.SerialNumber))
+                    {
+                        DeviceLogger(LogLevel.Info, $"====== [DEVICE INFORMATION] ======");
+                        DeviceLogger(LogLevel.Info, $"device serial number : {deviceInformation.SerialNumber}");
+                    }
                 }
                 catch (Exception e)
                 {

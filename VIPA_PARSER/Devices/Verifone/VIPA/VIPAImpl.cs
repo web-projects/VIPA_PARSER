@@ -12,12 +12,13 @@ using VIPA_PARSER.Devices.Common.Helpers.Templates;
 using VIPA_PARSER.Devices.Verifone.Connection;
 using VIPA_PARSER.Devices.Verifone.Helpers;
 using VIPA_PARSER.Devices.Verifone.VIPA.Helpers;
+using VIPA_PARSER.Devices.Verifone.VIPA.Interfaces;
 using VIPA_PARSER.Devices.Verifone.VIPA.TagLengthValue;
 using static VIPA_PARSER.Devices.Common.Types;
 
 namespace VIPA_PARSER.Devices.Verifone.VIPA
 {
-    public class VIPAImpl
+    public class VIPAImpl : IVipa
     {
         public DeviceInformation DeviceInformation { get; set; }
         private SerialConnection VerifoneConnection;
@@ -38,11 +39,21 @@ namespace VIPA_PARSER.Devices.Verifone.VIPA
 
         public event DeviceLogHandler DeviceLogHandler;
 
-        public VIPAImpl(DeviceLogHandler deviceLogHandler, DeviceInformation deviceInformation)
+        public void Connect(DeviceLogHandler deviceLogHandler, DeviceInformation deviceInformation)
         {
             DeviceLogHandler = deviceLogHandler;
             DeviceInformation = deviceInformation;
             VerifoneConnection = new SerialConnection(deviceLogHandler);
+        }
+
+        public void Disconnect()
+        {
+
+        }
+
+        public void Dispose()
+        {
+
         }
 
         #region --- Utilities ---

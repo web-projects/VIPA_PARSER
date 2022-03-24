@@ -23,7 +23,6 @@
 
   <ItemGroup>
     <Folder Include="Devices\Common\Helpers\Templates\" />
-    <Folder Include="Devices\Verifone\VIPA\Interfaces\" />
     <Folder Include="Devices\Verifone\VIPA\TagLengthValue\" />
   </ItemGroup>
 
