@@ -19,6 +19,13 @@ namespace VIPA_PARSER
             Console.WriteLine($"{Assembly.GetEntryAssembly().GetName().Name} - Version {Assembly.GetEntryAssembly().GetName().Version}");
             Console.WriteLine($"==========================================================================================\r\n");
 
+            //int value = 0x01;
+            //bool ischained = (value & 0x01) == 0x01;
+            //value = 0x40;
+            //bool isNotchained = (value & 0x01) == 0x00;
+            //value = 0x41;
+            //bool isNotKnown = (value & 0x00) == 0x00;
+
             ConfigurationLoad(0);
         }
 

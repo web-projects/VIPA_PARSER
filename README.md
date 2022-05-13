@@ -31,3 +31,4 @@ This an application to PARSE VIPA responses.
 ### HISTORY ###
 
 * 20220323 - Initial repository
+* 20220513 - Updates to SerialConnection module

@@ -146,6 +146,7 @@ namespace VIPA_PARSER.Devices.Verifone.Connection
                 // offset from length to LRC is 3
                 if (!isChainedCommand && combinedResponseBytes[maxPacketLen] != lrc)
                 {
+                    deviceLogHandler?.Invoke(Types.LogLevel.Error, $"VIPA: message LRC error - Expected=[{combinedResponseBytes[maxPacketLen]}] != Calculated=[{lrc}]");
                     readErrorLevel = ReadErrorLevel.Missing_LRC;
                     return true;
                 }
@@ -214,6 +215,21 @@ namespace VIPA_PARSER.Devices.Verifone.Connection
             return false;
         }
 
+        /// <summary>
+        /// Length Expected (Le) byte
+        /// For specific commands, there is an Le byte (the “expected” length of data to be returned).
+        /// This would mean that the following packet structure could occur:
+        /// 
+        /// [NAD, PCB, LEN]
+        /// [CLA, INS, P1, P2, Lc]
+        /// [Data, Le]
+        /// [LRC]
+        /// 
+        /// </summary>
+        /// <param name="responseTagsHandler"></param>
+        /// <param name="responseTaglessHandler"></param>
+        /// <param name="responseContactlessHandler"></param>
+        /// <param name="isChainedMessageResponse"></param>
         public void ReadAndExecute(VIPAImpl.ResponseTagsHandlerDelegate responseTagsHandler, VIPAImpl.ResponseTaglessHandlerDelegate responseTaglessHandler, VIPAImpl.ResponseCLessHandlerDelegate responseContactlessHandler, bool isChainedMessageResponse = false)
         {
             bool addedResponseComponent = true;
