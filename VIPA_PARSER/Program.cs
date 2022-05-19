@@ -1,10 +1,12 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using VIPA_PARSER.Devices.Common;
 using VIPA_PARSER.Devices.Verifone;
 using VIPA_PARSER.Devices.Verifone.VIPA;
+using VIPA_PARSER.DTE;
 using static VIPA_PARSER.Devices.Common.Types;
 
 namespace VIPA_PARSER
@@ -19,6 +21,9 @@ namespace VIPA_PARSER
             Console.WriteLine($"{Assembly.GetEntryAssembly().GetName().Name} - Version {Assembly.GetEntryAssembly().GetName().Version}");
             Console.WriteLine($"==========================================================================================\r\n");
 
+            // TEST ONLY
+            //LoadDebuggerAutomation();
+
             //int value = 0x01;
             //bool ischained = (value & 0x01) == 0x01;
             //value = 0x40;
@@ -27,6 +32,43 @@ namespace VIPA_PARSER
             //bool isNotKnown = (value & 0x00) == 0x00;
 
             ConfigurationLoad(0);
+        }
+
+        static void LoadDebuggerAutomation()
+        {
+            string programName = Assembly.GetEntryAssembly().GetName().Name;
+            string exeLocation = Assembly.GetExecutingAssembly().GetName().CodeBase.Replace(".dll", ".exe");
+
+            List<System.Diagnostics.Process> processes = new List<System.Diagnostics.Process>();
+
+            System.Diagnostics.Process myProgram = LoadDTE.LoadIfNotRunning(programName, exe: exeLocation);
+            processes.Add(myProgram);
+
+            LoadDTE.Attach(myProgram);
+
+            Console.WriteLine("Press any key to shut down...");
+            Console.ReadKey();
+            foreach (var p in processes)
+            {
+                try
+                {
+                    Console.WriteLine("Killing " + p.ProcessName);
+                    p.Kill();
+                }
+                catch (Exception ex)
+                {
+                    try
+                    {
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine("Closing " + p.ProcessName);
+                        p.Close();
+                    }
+                    catch (Exception ex2)
+                    {
+                        Console.WriteLine(ex2.Message);
+                    }
+                }
+            }
         }
 
         static void ConfigurationLoad(int index)
