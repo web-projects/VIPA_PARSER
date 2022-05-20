@@ -6,6 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Devices\**" />
+    <EmbeddedResource Remove="Devices\**" />
+    <None Remove="Devices\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="envdte" Version="17.2.32505.113" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="5.0.0" />
@@ -21,11 +27,6 @@
     <None Update="appsettings.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Devices\Common\Helpers\Templates\" />
-    <Folder Include="Devices\Verifone\VIPA\TagLengthValue\" />
   </ItemGroup>
 
 </Project>

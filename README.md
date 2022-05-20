@@ -1,12 +1,12 @@
 # README #
 
-This an application to PARSE VIPA responses.
+This an application to Attach to VisualStudio Debugger.
 
 ### What is this repository for? ###
 
 * VIPA_PARSER APPLICATION
 * 1.00.0.(100)
-* git remote add origin https://github.com/web-projects/VIPA_PARSER.git
+* git remote add origin https://github.com/web-projects/DTE_ATTACHER.git
 
 ### How do I get set up? ###
 
@@ -30,5 +30,4 @@ This an application to PARSE VIPA responses.
    
 ### HISTORY ###
 
-* 20220323 - Initial repository
-* 20220513 - Updates to SerialConnection module
+* 202200519 - Initial repository

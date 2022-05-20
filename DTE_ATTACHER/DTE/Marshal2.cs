@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Security;
 
-namespace VIPA_PARSER.DTE
+namespace DTE_ATTACHER.DTE
 {
     public static class Marshal2
     {
