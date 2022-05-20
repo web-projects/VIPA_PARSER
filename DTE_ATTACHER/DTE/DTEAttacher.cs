@@ -1,4 +1,5 @@
 ﻿using EnvDTE80;
+using System;
 using System.Linq;
 
 namespace DTE_ATTACHER.DTE
@@ -18,6 +19,7 @@ namespace DTE_ATTACHER.DTE
                 foreach (EnvDTE.Process process in processes.Cast<EnvDTE.Process>().Where(proc => proc.Name.IndexOf(targetProcess) != -1))
                 {
                     process.Attach();
+                    Console.WriteLine($"attached with PID {process.ProcessID}");
                     result = true;
                 }
             }

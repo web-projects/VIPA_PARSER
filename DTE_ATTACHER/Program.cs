@@ -1,4 +1,5 @@
 ﻿using DTE_ATTACHER.DTE;
+using DTE_ATTACHER.Helpers;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
@@ -20,13 +21,16 @@ namespace DTE_ATTACHER
             List<string> processesList = ConfigurationLoad(0);
 
             ConsoleKeyInfo keyPressed = new ConsoleKeyInfo();
+
             do
             {
-                Task<bool> taskResult = LoadDebuggerAutomation(processesList);
+                //Task<bool> taskResult = LoadDebuggerAutomationAsTask(processesList);
+                bool escapeKeyPressed = LoadDebuggerAutomationAsMethod(processesList);
 
-                if (taskResult.Result)
+                //if (taskResult.Result == false)
+                if (!escapeKeyPressed)
                 {
-                    Console.WriteLine("\r\nPRESS <ENTER> to RERUN\r\nPRESS <ESC> to QUIT\r\n");
+                    Console.WriteLine("\r\nPRESS <ENTER> to RERUN\r\nPRESS <ESC> to QUIT");
                     keyPressed = Console.ReadKey(true);
                 }
                 else
@@ -38,7 +42,53 @@ namespace DTE_ATTACHER
             } while (keyPressed.Key != ConsoleKey.Escape);
         }
 
-        static async Task<bool> AttacherTask(string targetProcess)
+        #region --- AS METHODS ---
+
+        static bool LoadDebuggerAutomationAsMethod(List<string> processesList)
+        {
+            bool escapeKeyPressed = false;
+
+            foreach (string targetProcess in processesList)
+            {
+                escapeKeyPressed = AttacherAsMethod(targetProcess);
+                if (escapeKeyPressed)
+                {
+                    break;
+                }
+            }
+
+            return escapeKeyPressed;
+        }
+
+        static bool AttacherAsMethod(string targetProcess)
+        {
+            bool escapeKeyPressed = false;
+
+            //Console.Write($"Waiting for process {targetProcess} ...");
+            Console.Write($"{Utils.FormatStringAsRequired(string.Format("Waiting for process {0} ", targetProcess), Utils.DeviceLogKeyValueLength, Utils.DeviceLogKeyValuePaddingCharacter)}... ");
+
+            while (!DTEAttacher.Attach(targetProcess))
+            {
+                Thread.Sleep(100);
+                if (Console.KeyAvailable)
+                {
+                    ConsoleKeyInfo keyPressed = Console.ReadKey(true);
+                    if (keyPressed.Key == ConsoleKey.Escape)
+                    {
+                        Console.WriteLine("");
+                        escapeKeyPressed = true;
+                        break;
+                    }
+                }
+            }
+
+            return escapeKeyPressed;
+        }
+
+        #endregion --- AS METHODS ---
+
+        #region --- AS TASKS ---
+        static async Task<bool> AttacherAsTask(string targetProcess)
         {
             bool escapeKeyPressed = false;
 
@@ -65,19 +115,18 @@ namespace DTE_ATTACHER
                 {
                     Console.WriteLine(" attached!");
                 }
-
             });
 
             return escapeKeyPressed;
         }
 
-        static async Task<bool> LoadDebuggerAutomation(List<string> processesList)
+        static async Task<bool> LoadDebuggerAutomationAsTask(List<string> processesList)
         {
             bool escapeKeyPressed = false;
 
             foreach (string targetProcess in processesList)
             {
-                escapeKeyPressed = await AttacherTask(targetProcess);
+                escapeKeyPressed = await AttacherAsTask(targetProcess);
                 if (escapeKeyPressed)
                 {
                     break;
@@ -86,6 +135,7 @@ namespace DTE_ATTACHER
 
             return escapeKeyPressed;
         }
+        #endregion --- AS TASKS ---
 
         static List<string> ConfigurationLoad(int index)
         {
