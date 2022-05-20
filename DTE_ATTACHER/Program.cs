@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace DTE_ATTACHER
 {
@@ -20,9 +21,11 @@ namespace DTE_ATTACHER
 
             ConsoleKeyInfo keyPressed = new ConsoleKeyInfo();
             do
-            { 
-                if (LoadDebuggerAutomation(processesList))
-                { 
+            {
+                Task<bool> taskResult = LoadDebuggerAutomation(processesList);
+
+                if (taskResult.Result)
+                {
                     Console.WriteLine("\r\nPRESS <ENTER> to RERUN\r\nPRESS <ESC> to QUIT\r\n");
                     keyPressed = Console.ReadKey(true);
                 }
@@ -35,11 +38,11 @@ namespace DTE_ATTACHER
             } while (keyPressed.Key != ConsoleKey.Escape);
         }
 
-        static bool LoadDebuggerAutomation(List<string> processesList)
+        static async Task<bool> AttacherTask(string targetProcess)
         {
-            ConsoleKeyInfo keyPressed = new ConsoleKeyInfo();
+            bool escapeKeyPressed = false;
 
-            foreach (string targetProcess in processesList)
+            await Task.Run(() =>
             {
                 Console.Write($"Waiting for process {targetProcess} ...");
 
@@ -48,21 +51,40 @@ namespace DTE_ATTACHER
                     Thread.Sleep(100);
                     if (Console.KeyAvailable)
                     {
-                        keyPressed = Console.ReadKey(true);
+                        ConsoleKeyInfo keyPressed = Console.ReadKey(true);
                         if (keyPressed.Key == ConsoleKey.Escape)
                         {
-                            return false;
+                            Console.WriteLine("");
+                            escapeKeyPressed = true;
+                            break;
                         }
                     }
                 }
 
-                if (keyPressed.Key != ConsoleKey.Escape)
+                if (!escapeKeyPressed)
                 {
                     Console.WriteLine(" attached!");
                 }
+
+            });
+
+            return escapeKeyPressed;
+        }
+
+        static async Task<bool> LoadDebuggerAutomation(List<string> processesList)
+        {
+            bool escapeKeyPressed = false;
+
+            foreach (string targetProcess in processesList)
+            {
+                escapeKeyPressed = await AttacherTask(targetProcess);
+                if (escapeKeyPressed)
+                {
+                    break;
+                }
             }
 
-            return keyPressed.Key != ConsoleKey.Escape;
+            return escapeKeyPressed;
         }
 
         static List<string> ConfigurationLoad(int index)
