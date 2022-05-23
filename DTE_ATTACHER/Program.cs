@@ -3,6 +3,8 @@ using DTE_ATTACHER.Helpers;
 using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -18,7 +20,10 @@ namespace DTE_ATTACHER
             Console.WriteLine($"{Assembly.GetEntryAssembly().GetName().Name} - Version {Assembly.GetEntryAssembly().GetName().Version}");
             Console.WriteLine($"==========================================================================================\r\n");
 
-            List<string> processesList = ConfigurationLoad(0);
+            IConfiguration configuration = ConfigurationLoad();
+
+            ClearFileContents(LoadApplicationClearLog(configuration));
+            List<string> processesList = LoadProcessesGroup(configuration, 0);
 
             ConsoleKeyInfo keyPressed = new ConsoleKeyInfo();
 
@@ -40,6 +45,33 @@ namespace DTE_ATTACHER
                 }
 
             } while (keyPressed.Key != ConsoleKey.Escape);
+        }
+
+        static void ClearFileContents(string path)
+        {
+            if (!string.IsNullOrEmpty(path))
+            {
+                // filename: logYYYYMMDD.txt
+                DateTime dt = DateTime.Now;
+                string timestamp = dt.ToString("yyyyMMdd");
+                string file = Path.Combine(path, $"log{timestamp}.txt");
+
+                try
+                {
+                    //using (FileStream fs = File.Open(file, FileMode.OpenOrCreate, FileAccess.ReadWrite))
+                    //{
+                    //    lock (fs)
+                    //    {
+                    //        fs.SetLength(0);
+                    //    }
+                    //}
+                    File.WriteAllText(file, string.Empty);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"Exception clearing log: {ex.Message}");
+                }
+            }
         }
 
         #region --- AS METHODS ---
@@ -137,7 +169,7 @@ namespace DTE_ATTACHER
         }
         #endregion --- AS TASKS ---
 
-        static List<string> ConfigurationLoad(int index)
+        static IConfiguration ConfigurationLoad()
         {
             // Get appsettings.json config.
             IConfiguration configuration = new ConfigurationBuilder()
@@ -145,11 +177,15 @@ namespace DTE_ATTACHER
                 .AddEnvironmentVariables()
                 .Build();
 
-            // Processes
-            return ProcessesGroup(configuration, index);
+            return configuration;
         }
 
-        static List<string> ProcessesGroup(IConfiguration configuration, int index)
+        static string LoadApplicationClearLog(IConfiguration configuration)
+        {
+            return configuration.GetValue<string>("Application:ClearLogFile");
+        }
+
+        static List<string> LoadProcessesGroup(IConfiguration configuration, int index)
         {
             List<string> targetProceses = new List<string>();
 
