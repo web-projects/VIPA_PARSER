@@ -23,7 +23,7 @@ namespace DTE_ATTACHER
             IConfiguration configuration = ConfigurationLoad();
 
             ClearFileContents(LoadApplicationClearLog(configuration));
-            List<string> processesList = LoadProcessesGroup(configuration, 0);
+            IEnumerable<Tuple<string, int>> processesList = LoadProcessesGroup(configuration, 0);
 
             ConsoleKeyInfo keyPressed = new ConsoleKeyInfo();
 
@@ -35,7 +35,7 @@ namespace DTE_ATTACHER
                 //if (taskResult.Result == false)
                 if (!escapeKeyPressed)
                 {
-                    Console.WriteLine("\r\nPRESS <ENTER> to RERUN\r\nPRESS <ESC> to QUIT");
+                    Console.WriteLine("\r\nPRESS <ENTER> to RERUN\r\nPRESS <ESC> to QUIT\r\n");
                     keyPressed = Console.ReadKey(true);
                 }
                 else
@@ -76,13 +76,13 @@ namespace DTE_ATTACHER
 
         #region --- AS METHODS ---
 
-        static bool LoadDebuggerAutomationAsMethod(List<string> processesList)
+        static bool LoadDebuggerAutomationAsMethod(IEnumerable<Tuple<string, int>> processesList)
         {
             bool escapeKeyPressed = false;
 
-            foreach (string targetProcess in processesList)
+            foreach ((string targetProcess, int delay) in processesList)
             {
-                escapeKeyPressed = AttacherAsMethod(targetProcess);
+                escapeKeyPressed = AttacherAsMethod(targetProcess, delay);
                 if (escapeKeyPressed)
                 {
                     break;
@@ -92,7 +92,7 @@ namespace DTE_ATTACHER
             return escapeKeyPressed;
         }
 
-        static bool AttacherAsMethod(string targetProcess)
+        static bool AttacherAsMethod(string targetProcess, int delay)
         {
             bool escapeKeyPressed = false;
 
@@ -101,7 +101,7 @@ namespace DTE_ATTACHER
 
             while (!DTEAttacher.Attach(targetProcess))
             {
-                Thread.Sleep(100);
+                Thread.Sleep(delay);
                 if (Console.KeyAvailable)
                 {
                     ConsoleKeyInfo keyPressed = Console.ReadKey(true);
@@ -185,29 +185,39 @@ namespace DTE_ATTACHER
             return configuration.GetValue<string>("Application:ClearLogFile");
         }
 
-        static List<string> LoadProcessesGroup(IConfiguration configuration, int index)
+        static IEnumerable<Tuple<string, int>> LoadProcessesGroup(IConfiguration configuration, int index)
         {
-            List<string> targetProceses = new List<string>();
-
             var processesPayload = configuration.GetSection("Processes")
                     .GetChildren()
                     .ToList()
                     .Select(x => new
                     {
                         ProcessName = x.GetValue<string>("Name"),
+                        MsDelay = x.GetValue<int>("MsDelay"),
                     });
 
             // Is there a matching item?
+            List<string> processInPayload = new List<string>();
+            List<int> delaysInPayload = new List<int>();
+
             if (processesPayload.Count() > index)
             {
-                targetProceses.AddRange(from value in processesPayload
-                                        select processesPayload.ElementAt(index++).ProcessName);
+                processInPayload.AddRange(from value in processesPayload
+                    select processesPayload.ElementAt(index++).ProcessName);
             }
+            
+            index = 0;
+            if (processesPayload.Count() > index)
+            {
+                delaysInPayload.AddRange(from value in processesPayload
+                                     select processesPayload.ElementAt(index++).MsDelay);
+            }
+            IEnumerable<Tuple<string, int>> targetProceses = processInPayload.Zip(delaysInPayload, (a, b) => Tuple.Create(a, b));
 
             Console.WriteLine("LIST OF PROCESSES TO ATTACH TO VS DEBUGGER\r\n");
-            foreach (string process in targetProceses)
+            foreach ((string process, int delay) in targetProceses)
             {
-                Console.WriteLine($"{process}");
+                Console.WriteLine($"{process} - delay: {delay} ms.");
             }
             Console.WriteLine("");
 
