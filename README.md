@@ -32,3 +32,4 @@ This an application to PARSE VIPA responses.
 
 * 20220323 - Initial repository
 * 20220513 - Updates to SerialConnection module
+* 20220715 - Corrected repository corruption.
